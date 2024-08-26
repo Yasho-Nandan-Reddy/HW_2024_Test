@@ -9,17 +9,43 @@ public class MovementController : MonoBehaviour
     [SerializeField] private GameObject pulpit;
     private GameObject pulpitinstance;
     public float pulpittime = 5.0f;
+    private GameObject[] pulpitarray;
+    private int xory;
 
     private Rigidbody rb;
 
 
-    // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         Vector3 spawnpoint= new Vector3(0, 0, 0);
         pulpitinstance = Instantiate(pulpit, spawnpoint, Quaternion.identity);
+        Debug.Log(pulpitarray.Length);
+        
     }
+
+    void newPulpit()
+    {
+        xory = Random.Range(0, 2);
+        Debug.Log(xory);
+        if (xory == 0)
+        {
+            int x = Random.Range(-1, 2);
+            if (x == 0 || x == 1) { x = 9;}
+            else{x= -9;}
+            Vector3 spawnpoint = new Vector3(x, 0, 0);
+            GameObject newinstance = Instantiate(pulpit, spawnpoint, Quaternion.identity);
+        }
+        else
+        {
+            int x = Random.Range(-1, 2);
+            if (x == 0||x==1){ x = 9; }
+            else { x = -9; }
+            Vector3 spawnpoint = new Vector3(0, 0, x);
+            GameObject newinstance = Instantiate(pulpit, spawnpoint, Quaternion.identity);
+        }
+    }
+
 
     void HandleMovement()
     {
@@ -37,6 +63,8 @@ public class MovementController : MonoBehaviour
     void Update()
     {
         HandleMovement();
+        float halfpulpittime = pulpittime / 2;
+        Invoke("newPulpit", halfpulpittime);
         Destroy(pulpitinstance, pulpittime);
     }
 }
