@@ -8,48 +8,39 @@ public class MovementController : MonoBehaviour
     public float rotationspeed = 2.0f;
     [SerializeField] private GameObject pulpit;
     private GameObject pulpitinstance;
+    private GameObject newpulpitinstance;
     public float pulpittime = 5.0f;
-    private GameObject[] pulpitarray;
-    private int xory;
-
+    private float timeTracker = 0.0f;
+    private bool pulpitDestroyed = false;
     private Rigidbody rb;
-
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        Vector3 spawnpoint= new Vector3(0, 0, 0);
+        Vector3 spawnpoint = new Vector3(0, 0, 0);
         pulpitinstance = Instantiate(pulpit, spawnpoint, Quaternion.identity);
-        Debug.Log(pulpitarray.Length);
-        
     }
 
     void newPulpit()
     {
-        xory = Random.Range(0, 2);
-        Debug.Log(xory);
-        if (xory == 0)
-        {
-            int x = Random.Range(-1, 2);
-            if (x == 0 || x == 1) { x = 9;}
-            else{x= -9;}
-            Vector3 spawnpoint = new Vector3(x, 0, 0);
-            GameObject newinstance = Instantiate(pulpit, spawnpoint, Quaternion.identity);
-        }
-        else
-        {
-            int x = Random.Range(-1, 2);
-            if (x == 0||x==1){ x = 9; }
-            else { x = -9; }
-            Vector3 spawnpoint = new Vector3(0, 0, x);
-            GameObject newinstance = Instantiate(pulpit, spawnpoint, Quaternion.identity);
-        }
-    }
+        Vector3[] possibleOffsets = {
+            new Vector3(9, 0, 0),
+            new Vector3(-9, 0, 0),
+            new Vector3(0, 0, 9),
+            new Vector3(0, 0, -9)
+        };
 
+        Vector3 currentPulpitPosition = pulpitinstance.transform.position;
+        Vector3 selectedOffset = possibleOffsets[Random.Range(0, possibleOffsets.Length)];
+        Vector3 newPulpitPosition = currentPulpitPosition + selectedOffset;
+
+        newpulpitinstance = Instantiate(pulpit, newPulpitPosition, Quaternion.identity);
+        pulpitDestroyed = false; // Reset the destruction flag
+    }
 
     void HandleMovement()
     {
-        float forward= Input.GetAxis("Vertical");
+        float forward = Input.GetAxis("Vertical");
         float rotation = Input.GetAxis("Horizontal");
 
         Vector3 movement = new Vector3(0, 0, forward) * movementspeed * (Time.deltaTime * 2);
@@ -59,12 +50,29 @@ public class MovementController : MonoBehaviour
         rb.MoveRotation(rb.rotation * turn);
     }
 
-    // Update is called once per frame
+    void Destroypulpit()
+    {
+        Destroy(pulpitinstance);
+        pulpitinstance = newpulpitinstance;
+        pulpitDestroyed = false; // Reset the flag so that a new pulpit can be generated in the next cycle
+    }
+
     void Update()
     {
         HandleMovement();
-        float halfpulpittime = pulpittime / 2;
-        Invoke("newPulpit", halfpulpittime);
-        Destroy(pulpitinstance, pulpittime);
+
+        timeTracker += Time.deltaTime;
+
+        if (timeTracker >= pulpittime / 2 && pulpitinstance != null && !pulpitDestroyed)
+        {
+            newPulpit();
+            pulpitDestroyed = true;
+        }
+
+        if (timeTracker >= pulpittime)
+        {
+            Destroypulpit();
+            timeTracker = 2.5f; // Reset the timer for the next cycle
+        }
     }
 }
