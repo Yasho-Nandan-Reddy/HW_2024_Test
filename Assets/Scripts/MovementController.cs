@@ -10,7 +10,7 @@ public class MovementController : MonoBehaviour
     [SerializeField] private GameObject pulpit;
     private GameObject pulpitinstance;
     private GameObject newpulpitinstance;
-    public float pulpittime = Random.Range(4,6);
+    private float pulpittime = 0;
     private float timeTracker = 0.0f;
     private bool pulpitDestroyed = false;
     private Rigidbody rb;
@@ -24,6 +24,7 @@ public class MovementController : MonoBehaviour
 
     void Start()
     {
+        pulpittime = Random.Range(4, 6);    
         rb = GetComponent<Rigidbody>();
         Vector3 spawnpoint = new Vector3(0, 0, 0);
         pulpitinstance = Instantiate(pulpit, spawnpoint, Quaternion.identity);
