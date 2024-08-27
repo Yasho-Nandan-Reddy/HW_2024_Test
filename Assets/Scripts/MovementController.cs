@@ -14,6 +14,11 @@ public class MovementController : MonoBehaviour
     private bool pulpitDestroyed = false;
     private Rigidbody rb;
 
+    // New Variables for Death Mechanic and Scoring System
+    public float fallThreshold = -5.0f;
+    private bool isDead = false;
+    private int score = 0; // Tracks the number of pulpits crossed
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -24,18 +29,46 @@ public class MovementController : MonoBehaviour
     void newPulpit()
     {
         Vector3[] possibleOffsets = {
-            new Vector3(9, 0, 0),
-            new Vector3(-9, 0, 0),
-            new Vector3(0, 0, 9),
-            new Vector3(0, 0, -9)
+            new Vector3(8, 0, 0),
+            new Vector3(-8, 0, 0),
+            new Vector3(0, 0, 8),
+            new Vector3(0, 0, -8)
         };
 
         Vector3 currentPulpitPosition = pulpitinstance.transform.position;
         Vector3 selectedOffset = possibleOffsets[Random.Range(0, possibleOffsets.Length)];
         Vector3 newPulpitPosition = currentPulpitPosition + selectedOffset;
+        Vector3 oldPulpitPosition = pulpitinstance.transform.position;
+        // Define boundaries
+        float minX = -24f;
+        float maxX = 24f;
+        float minZ = -24f;
+        float maxZ = 24f;
+
+
+        // Ensure the new position is different from the old one and within bounds
+        while (newPulpitPosition == oldPulpitPosition ||
+               newPulpitPosition.x < minX || newPulpitPosition.x > maxX ||
+               newPulpitPosition.z < minZ || newPulpitPosition.z > maxZ)
+        {
+            selectedOffset = possibleOffsets[Random.Range(0, possibleOffsets.Length)];
+            newPulpitPosition = currentPulpitPosition + selectedOffset;
+        }
 
         newpulpitinstance = Instantiate(pulpit, newPulpitPosition, Quaternion.identity);
-        pulpitDestroyed = false; // Reset the destruction flag
+        pulpitDestroyed = false;
+
+        // Increment score when a new pulpit is generated and the player hasn't died
+        if (!isDead)
+        {
+            score++;
+            Debug.Log("Score: " + score);
+        }
+    }
+
+    bool IsValidPosition(Vector3 position)
+    {
+        return (position.x >= -27 && position.x <= 27 && position.z >= -27 && position.z <= 27);
     }
 
     void HandleMovement()
@@ -54,11 +87,20 @@ public class MovementController : MonoBehaviour
     {
         Destroy(pulpitinstance);
         pulpitinstance = newpulpitinstance;
-        pulpitDestroyed = false; // Reset the flag so that a new pulpit can be generated in the next cycle
+        pulpitDestroyed = false;
+    }
+
+    void Die()
+    {
+        isDead = true;
+        Debug.Log("The character has died.");
+        Time.timeScale = 0;
     }
 
     void Update()
     {
+        if (isDead) return;
+
         HandleMovement();
 
         timeTracker += Time.deltaTime;
@@ -72,7 +114,13 @@ public class MovementController : MonoBehaviour
         if (timeTracker >= pulpittime)
         {
             Destroypulpit();
-            timeTracker = 2.5f; // Reset the timer for the next cycle
+            timeTracker = 2.5f;
+        }
+
+        if (transform.position.y < fallThreshold)
+        {
+            Die();
+            Debug.Log("Score of Doofus: " + score);  
         }
     }
 }
