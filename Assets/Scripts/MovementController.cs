@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class MovementController : MonoBehaviour
 {
@@ -18,6 +19,8 @@ public class MovementController : MonoBehaviour
     public float fallThreshold = -5.0f;
     private bool isDead = false;
     private int score = 0; // Tracks the number of pulpits crossed
+
+    public Text ScoreText; // Reference to the score display
 
     void Start()
     {
@@ -63,6 +66,7 @@ public class MovementController : MonoBehaviour
         {
             score++;
             Debug.Log("Score: " + score);
+            ScoreText.text = score.ToString();
         }
     }
 
