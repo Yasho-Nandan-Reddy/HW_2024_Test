@@ -5,12 +5,12 @@ using UnityEngine.UI;
 
 public class MovementController : MonoBehaviour
 {
-    public float movementspeed = 5.0f;
+    public float movementspeed = 3.0f;
     public float rotationspeed = 2.0f;
     [SerializeField] private GameObject pulpit;
     private GameObject pulpitinstance;
     private GameObject newpulpitinstance;
-    public float pulpittime = 5.0f;
+    public float pulpittime = Random.Range(4,6);
     private float timeTracker = 0.0f;
     private bool pulpitDestroyed = false;
     private Rigidbody rb;
@@ -109,7 +109,7 @@ public class MovementController : MonoBehaviour
 
         timeTracker += Time.deltaTime;
 
-        if (timeTracker >= pulpittime / 2 && pulpitinstance != null && !pulpitDestroyed)
+        if (timeTracker >= 2.5f && pulpitinstance != null && !pulpitDestroyed)
         {
             newPulpit();
             pulpitDestroyed = true;
